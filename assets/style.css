@@ -63,6 +63,41 @@ body {
 			height: 2400px;
 			background: #fff;
 		}
+/* https://www.webcreatorbox.com/tech/loading-animation */
+#loading {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: #fff;
+	opacity: 1;
+	transition: opacity 1s;
+}
+#loading.hidden {
+	opacity: 0;
+}
+.spinner {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100px;
+	height: 100px;
+	margin: auto;
+	background-color: #333;
+	border-radius: 100%;
+	animation: sk-scaleout 1.0s infinite ease-in-out;
+}
+@keyframes sk-scaleout {
+	0% {
+		transform: scale(0);
+	} 100% {
+		transform: scale(1.0);
+		opacity: 0;
+	}
+}
 img {
 	display: none;
 }

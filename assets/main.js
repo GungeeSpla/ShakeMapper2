@@ -6,6 +6,7 @@ let unit_names;
 let layer_names;
 let check_state = {
 	'stage': 'shakeup',
+	'type': 'photo',
 	'scale': 'scale-0.7',
 	'Cmn': true,
 	'CoopGraph_0': true,
@@ -89,7 +90,7 @@ function load_xml(num) {
 			}
 		}
 	};
-	req.open('GET', './assets/' + num + '.xml');
+	req.open('GET', './assets/xml/' + num + '.xml');
 	req.send(null);
 }
 
@@ -271,7 +272,7 @@ function ask_clear_storage() {
 /** select_stage()
  */
 function select_stage(num) {
-	stageImage = document.getElementById('stage-' + num);
+	stageImage = document.getElementById(check_state['type'] + '-' + num);
 	ctx.clearRect(0, 0, 2400, 2400);
 	ctx.drawImage(stageImage, 0, 0);
 	load_xml(num);
@@ -285,6 +286,18 @@ function change_stage() {
 	const id = checked_element.getAttribute('id');
 	check_state['stage'] = id;
 	const num = parseInt(checked_element.getAttribute('num'));
+	select_stage(num);
+	save_storage();
+}
+
+/** change_type()
+ */
+function change_type() {
+	const checked_element = document.querySelector('input[type=radio][name=type]:checked');
+	const checked_element_2 = document.querySelector('input[type=radio][name=stage]:checked');
+	const id = checked_element.getAttribute('id');
+	check_state['type'] = id;
+	const num = parseInt(checked_element_2.getAttribute('num'));
 	select_stage(num);
 	save_storage();
 }
@@ -314,27 +327,38 @@ function change_scale() {
 /** onload()
  */
 window.onload = () => {
+	loading = document.getElementById('loading');
+	loading.ontransitionend = () => {
+		loading.remove();
+	};
+	loading.classList.add('hidden');
 	canvas = document.getElementById('canvas');
 	ctx = canvas.getContext('2d');
 	canvas.width = 2400;
 	canvas.height = 2400;
 	const storage_item = localStorage.getItem('shakemapper');
 	if (storage_item) {
-		check_state = JSON.parse(storage_item).check_state;
+		Object.assign(check_state, JSON.parse(storage_item).check_state);
 	}
 	let p_area;
 	p_area = document.getElementById('stage-area');
 	for (let i = 0; i < 5; i++) {
-		const name = [
-			'shakeup', 'shakeship', 'shakehouse', 'shakelift', 'shakeride'
-		][i];
-		const name_jp = [
-			'シェケナダム', '難破船ドン･ブラコ', '海上集落シャケト場', 'トキシラズいぶし工房', '朽ちた箱舟 ポラリス'
-		][i];
+		const name = ['shakeup', 'shakeship', 'shakehouse', 'shakelift', 'shakeride'][i];
+		const name_jp = ['シェケナダム', '難破船ドン･ブラコ', '海上集落シャケト場', 'トキシラズいぶし工房', '朽ちた箱舟 ポラリス'][i];
 		const label = document.createElement('label');
 		label.setAttribute('for', name);
 		label.innerHTML = `<input id="${name}" name="stage" num="${i}" type="radio" ${(check_state['stage'] === name) ? 'checked="checked"' : ''}>${name_jp}`;
 		label.querySelector('input').onchange = change_stage;
+		p_area.appendChild(label);
+	}
+	p_area = document.getElementById('type-area');
+	for (let i = 0; i < 2; i++) {
+		const name = ['photo', 'plan'][i];
+		const name_jp = ['リアル', '平面図'][i];
+		const label = document.createElement('label');
+		label.setAttribute('for', name);
+		label.innerHTML = `<input id="${name}" name="type" num="${i}" type="radio" ${(check_state['type'] === name) ? 'checked="checked"' : ''}>${name_jp}`;
+		label.querySelector('input').onchange = change_type;
 		p_area.appendChild(label);
 	}
 	p_area = document.getElementById('scale-area');
