@@ -218,7 +218,7 @@ function update_canvas() {
 		const rail_points = obj['RailPoints'];
 		if (rail_points) {
 			ctx.beginPath();
-			ctx.strokeStyle = 'hsla(' + hue + ', 100%, 50%, 1)';
+			ctx.strokeStyle = 'hsla(' + hsl + ', 1)';
 			ctx.lineWidth = 2;
 			//ctx.moveTo(x, z);
 			const x1 = rail_points[0]['Translate']['X'] + 1200;
