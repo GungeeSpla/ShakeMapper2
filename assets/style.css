@@ -65,6 +65,7 @@ body {
 		}
 /* https://www.webcreatorbox.com/tech/loading-animation */
 #loading {
+	pointer-events: none;
 	position: fixed;
 	left: 0;
 	top: 0;
