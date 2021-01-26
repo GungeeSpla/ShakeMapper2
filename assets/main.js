@@ -7,13 +7,18 @@ let layer_names;
 let check_state = {
 	'stage': 'shakeup',
 	'type': 'photo',
+	'nodelinks': true,
 	'scale': 'scale-0.7',
 	'Cmn': true,
 	'CoopGraph_0': true,
 	'CoopWater_0': true,
 	'CoopWater_1': true,
 	'CoopWater_2': true,
-	'Tmp': true
+	'Tmp': true,
+	'CoopGraphNode': true,
+	'CoopGraphNodeDangerousPos': true,
+	'Obj_CoopIkuraBankBase': true,
+	'Obj_CoopGraphArea': true
 };
 
 /** get_data(element)
@@ -86,6 +91,11 @@ function load_xml(num) {
 					label.querySelector('input').onchange = update_canvas;
 					p_area.appendChild(label);
 				});
+				objs.sort((a, b) => {
+					const ya = a['Translate'] && a['Translate']['Y'] || 0;
+					const yb = b['Translate'] && b['Translate']['Y'] || 0;
+					return (ya > yb) ? 1 : -1;
+				});
 				update_canvas();
 			}
 		}
@@ -133,15 +143,14 @@ function update_canvas() {
 			return;
 		}
 		console.log(obj);
-		const unit_index = unit_names.indexOf(unit);
-		const hue = parseInt(unit_index / unit_names.length * 360 * 6);
+		const hsl = str_to_hsl(unit.replace('DangerousPos', ''));
 		const x = obj['Translate']['X'] + 1200;
 		const z = obj['Translate']['Z'] + 1200;
 		const sx = obj['Scale']['X'];
 		const sz = obj['Scale']['Z'];
 		const ry = obj['Rotate']['Y'];
 		const links = obj['Links'];
-		if (links && Object.keys(links).length) {
+		if (check_state['nodelinks'] && links && Object.keys(links).length) {
 			for (let key in links) {
 				const len = links[key].length;
 				for (let i = 0; i < len; i++) {
@@ -152,11 +161,13 @@ function update_canvas() {
 					if (target_obj) {
 						const x2 = target_obj['Translate']['X'] + 1200;
 						const z2 = target_obj['Translate']['Z'] + 1200;
-						ctx.lineWidth = 1;
-						ctx.strokeStyle = 'hsla(' + hue + ', 100%, 50%, 1)';
+						ctx.strokeStyle = 'hsla(' + hsl + ', 1)';
 						if (target_type === 'ToGraphNodeUnidirectionalDrop') {
-							ctx.lineWidth = 3;
-							ctx.strokeStyle = 'yellow';
+							ctx.lineWidth = 4;
+							ctx.setLineDash([4, 4, 14, 4]);
+						} else {
+							ctx.lineWidth = 1;
+							ctx.setLineDash([]);
 						}
 						ctx.beginPath();
 						ctx.moveTo(x, z);
@@ -165,6 +176,7 @@ function update_canvas() {
 					}
 				}
 			};
+			ctx.setLineDash([]);
 		}
 		if (!obj['UnitConfigName'].includes('Rail')) {
 			ctx.save();
@@ -175,13 +187,13 @@ function update_canvas() {
 			if (obj['UnitConfigName'].includes('IkuraBank')) {
 				w = 25;
 				h = 25;
-				ctx.fillStyle = 'hsla(' + hue + ', 100%, 50%, 1)';
+				ctx.fillStyle = 'hsla(' + hsl + ', 1)';
 				ctx.fillRect(- w/2, - h/2, w, h);
-			} else if (obj['UnitConfigName'].includes('Obj_CoopLocatorSpawnBox')) {
+			} else if (obj['UnitConfigName'].includes('Obj_CoopLocatorSpawnBox') || obj['UnitConfigName'].includes('PaintedArea_Cylinder')) {
 				w *= sx;
 				h *= sz;
-				ctx.fillStyle = 'hsla(' + hue + ', 100%, 50%, .1)';
-				ctx.strokeStyle = 'hsla(' + hue + ', 100%, 50%, 1)';
+				ctx.fillStyle = 'hsla(' + hsl + ', .1)';
+				ctx.strokeStyle = 'hsla(' + hsl + ', 1)';
 				ctx.lineWidth = 1;
 				ctx.beginPath();
 				ctx.arc(0, 0, w/2, 0, Math.PI*2, false);
@@ -190,13 +202,13 @@ function update_canvas() {
 			} else if (sx === 1 && sz === 1) {
 				ctx.beginPath();
 				ctx.arc(0, 0, w/2, 0, Math.PI*2, false);
-				ctx.fillStyle = 'hsla(' + hue + ', 100%, 50%, 1)';
+				ctx.fillStyle = 'hsla(' + hsl + ', 1)';
 				ctx.fill();
 			} else {
 				w *= sx;
 				h *= sz;
-				ctx.fillStyle = 'hsla(' + hue + ', 100%, 50%, .1)';
-				ctx.strokeStyle = 'hsla(' + hue + ', 100%, 50%, 1)';
+				ctx.fillStyle = 'hsla(' + hsl + ', .1)';
+				ctx.strokeStyle = 'hsla(' + hsl + ', 1)';
 				ctx.lineWidth = 1;
 				ctx.fillRect(- w/2, - h/2, w, h);
 				ctx.strokeRect(- w/2, - h/2, w, h);
@@ -302,6 +314,23 @@ function change_type() {
 	save_storage();
 }
 
+/** str_to_hsl(str)
+ */
+function str_to_hsl(str, a = 0) {
+	let hue = 0;
+	for  (let i = 0; i < str.length; i++) {
+		const c = str.charCodeAt(i);
+		hue += c;
+	}
+	hue = parseInt(1.5 * (hue + 140 + a)) % 360;
+	const saturation = 100;
+	let brightness = 50;
+	if (40 < hue && hue < 200) {
+		brightness = 40;
+	}
+	return `${hue}, ${saturation}%, ${brightness}%`;
+}
+
 /** change_scale()
  */
 function change_scale() {
@@ -340,6 +369,8 @@ window.onload = () => {
 	if (storage_item) {
 		Object.assign(check_state, JSON.parse(storage_item).check_state);
 	}
+	document.getElementById('nodelinks').checked = !!check_state['nodelinks'];
+	document.getElementById('nodelinks').onchange = change_stage;
 	let p_area;
 	p_area = document.getElementById('stage-area');
 	for (let i = 0; i < 5; i++) {

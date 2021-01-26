@@ -47,6 +47,9 @@ body {
 		#left p:hover {
 			background: #dff;
 		}
+		#button-area p {
+			text-align: center;
+		}
 	#right {
 		position: relative;
 		display: block;
