@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<title>ShakeMapper2</title>
+	<script  src="./assets/main.js?ver=0"></script>
+	<link href="./assets/style.css?ver=0" rel="stylesheet">
+</head>
+<body>
+	<div id="wrapper">
+		<div id="left">
+			<h4>ステージ</h4>
+			<div id="stage-area"></div>
+			<h4>拡大率</h4>
+			<div id="scale-area"></div>
+			<h4>レイヤー</h4>
+			<div id="layer-area"></div>
+			<h4>オブジェクト</h4>
+			<div id="object-area"></div>
+			<h4>その他</h4>
+			<div id="button-area">
+				<p onclick="ask_clear_storage();">ローカルストレージのクリア</p>
+			</div>
+		</div>
+		<div id="right">
+			<canvas id="canvas"></canvas>
+		</div>
+	</div>
+	<img src="./assets/0.png" id="stage-0">
+	<img src="./assets/1.png" id="stage-1">
+	<img src="./assets/2.png" id="stage-2">
+	<img src="./assets/3.png" id="stage-3">
+	<img src="./assets/4.png" id="stage-4">
+</body>
+</html>
