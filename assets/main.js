@@ -182,7 +182,7 @@ function update_canvas() {
 				h *= sz;
 				ctx.fillStyle = 'hsla(' + hue + ', 100%, 50%, .1)';
 				ctx.strokeStyle = 'hsla(' + hue + ', 100%, 50%, 1)';
-				ctx.lineWidth = 2;
+				ctx.lineWidth = 1;
 				ctx.beginPath();
 				ctx.arc(0, 0, w/2, 0, Math.PI*2, false);
 				ctx.fill();
@@ -197,7 +197,7 @@ function update_canvas() {
 				h *= sz;
 				ctx.fillStyle = 'hsla(' + hue + ', 100%, 50%, .1)';
 				ctx.strokeStyle = 'hsla(' + hue + ', 100%, 50%, 1)';
-				ctx.lineWidth = 2;
+				ctx.lineWidth = 1;
 				ctx.fillRect(- w/2, - h/2, w, h);
 				ctx.strokeRect(- w/2, - h/2, w, h);
 			}
