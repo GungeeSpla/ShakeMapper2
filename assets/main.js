@@ -144,6 +144,7 @@ function update_canvas() {
 		}
 		console.log(obj);
 		const hsl = str_to_hsl(unit.replace('DangerousPos', ''));
+		const hsl_2 = str_to_hsl(unit.replace('DangerousPos', ''), 50);
 		const x = obj['Translate']['X'] + 1200;
 		const z = obj['Translate']['Z'] + 1200;
 		const sx = obj['Scale']['X'];
@@ -196,7 +197,8 @@ function update_canvas() {
 				ctx.strokeStyle = 'hsla(' + hsl + ', 1)';
 				ctx.lineWidth = 1;
 				ctx.beginPath();
-				ctx.arc(0, 0, w/2, 0, Math.PI*2, false);
+				//ctx.arc(0, 0, w/2, 0, Math.PI*2, false);
+				ctx.ellipse(0, 0, w/2, h/2, 0, 0, Math.PI*2, false);
 				ctx.fill();
 				ctx.stroke();
 			} else if (sx === 1 && sz === 1) {
