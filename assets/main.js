@@ -1,5 +1,6 @@
 let canvas;
 let ctx;
+let current_stage_num;
 let stageImage;
 let objs;
 let unit_names;
@@ -18,8 +19,16 @@ let check_state = {
 	'CoopGraphNode': true,
 	'CoopGraphNodeDangerousPos': true,
 	'Obj_CoopIkuraBankBase': true,
-	'Obj_CoopGraphArea': true
+	'Obj_CoopGraphArea': true,
+	'襲来1回目のリスキル金イクラマップ': true,
 };
+const mothership_time = [
+	[63.1, 63.1, 63.2],
+	[62.1, 62.2, 62.1],
+	[64.5, 60.0, 64.0],
+	[62.7, 62.6, 63.4],
+	[61.9, 61.9, 62.0],
+];
 
 /** get_data(element)
  */
@@ -70,6 +79,7 @@ function load_xml(num) {
 					}
 					objs.push(obj);
 				});
+				unit_names.push('襲来1回目のリスキル金イクラマップ');
 				layer_names.sort();
 				unit_names.sort();
 				let p_area;
@@ -126,6 +136,29 @@ function get_obj(id) {
 	return null;
 }
 
+/** get_objs_by_unit(unit)
+ */
+function get_objs_by_unit(unit) {
+	var ret = [];
+	for (let i = 0; i < objs.length; i++) {
+		if (objs[i]['UnitConfigName'] === unit) {
+			ret.push(objs[i]);
+		}
+	}
+	return ret;
+}
+
+/** get_obj_by_unit_and_layer(unit, layer)
+ */
+function get_obj_by_unit_and_layer(unit, layer) {
+	for (let i = 0; i < objs.length; i++) {
+		if (objs[i]['UnitConfigName'] === unit && objs[i]['LayerConfigName'] === layer) {
+			return objs[i];
+		}
+	}
+	return null;
+}
+
 /** update_canvas()
  */
 function update_canvas() {
@@ -142,7 +175,50 @@ function update_canvas() {
 		if (!check_state[layer]) {
 			return;
 		}
-		console.log(obj);
+		// ハコビヤ
+		// 
+		if (check_state['襲来1回目のリスキル金イクラマップ'] && unit === 'Obj_CoopSpawnPointBoss') {
+			const water_index = (layer === 'CoopWater_0') ? 2 : (layer === 'CoopWater_1') ? 1 : 0;
+			const kyuchaku = mothership_time[current_stage_num][water_index];
+			const basket_layer = (layer === 'CoopWater_0') ? layer : 'Cmn';
+			const basket = get_obj_by_unit_and_layer('Obj_CoopIkuraBank', basket_layer);
+			const mx = obj['Translate']['X'] + 1200;
+			const mz = obj['Translate']['Z'] + 1200;
+			const bx = basket['Translate']['X'] + 1200;
+			const bz = basket['Translate']['Z'] + 1200;
+			const st = 100 - 74 + 1;
+			const et = 100 - kyuchaku + 0.2;
+			function get_pos(time) {
+				const x = mx + (time - st) * (bx - mx) / (et - st);
+				const z = mz + (time - st) * (bz - mz) / (et - st);
+				return { x, z };
+			}
+			for (let f = 120; f < 6000; f += 50) {
+				const time = f / 60;
+				if (st <= time && time <= et) {
+					const pos = get_pos(time);
+					const w = 10;
+					const hsl = str_to_hsl(unit.replace('DangerousPos', ''));
+					ctx.save();
+					ctx.translate(pos.x, pos.z)
+					ctx.rotate(-45 * Math.PI/180);
+					ctx.beginPath();
+					ctx.arc(0, 0, w/2, 0, Math.PI*2, false);
+					ctx.fillStyle = 'hsla(' + hsl + ', 1)';
+					ctx.lineWidth = 4;
+					ctx.strokeStyle = '#fff';
+					ctx.stroke();
+					ctx.fill();
+					ctx.font = 'bold 16px sans-serif';
+					//ctx.strokeText((100 - time).toFixed(1) + ' (' + Math.ceil(100 - time) + ')', pos.x + 20, pos.z);
+					//ctx.fillText((100 - time).toFixed(1) + ' (' + Math.ceil(100 - time) + ')',   pos.x + 20, pos.z);
+					ctx.strokeText((100 - time).toFixed(1) , 20, -0);
+					ctx.fillText((100 - time).toFixed(1),   20, -0);
+					ctx.restore();
+				}
+			}
+		}
+		//console.log(obj);
 		const hsl = str_to_hsl(unit.replace('DangerousPos', ''));
 		const hsl_2 = str_to_hsl(unit.replace('DangerousPos', ''), 50);
 		const x = obj['Translate']['X'] + 1200;
@@ -258,6 +334,7 @@ function update_canvas() {
 			ctx.stroke();
 		}
 	});
+	
 	save_storage();
 }
 
@@ -286,6 +363,7 @@ function ask_clear_storage() {
 /** select_stage()
  */
 function select_stage(num) {
+	current_stage_num = num;
 	stageImage = document.getElementById(check_state['type'] + '-' + num);
 	ctx.clearRect(0, 0, 2400, 2400);
 	ctx.drawImage(stageImage, 0, 0);
