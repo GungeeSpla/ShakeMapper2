@@ -175,6 +175,7 @@ function update_canvas() {
 		if (!check_state[layer]) {
 			return;
 		}
+		//
 		// ハコビヤ
 		// 
 		if (check_state['襲来1回目のリスキル金イクラマップ'] && unit === 'Obj_CoopSpawnPointBoss') {
@@ -186,14 +187,14 @@ function update_canvas() {
 			const mz = obj['Translate']['Z'] + 1200;
 			const bx = basket['Translate']['X'] + 1200;
 			const bz = basket['Translate']['Z'] + 1200;
-			const st = 100 - 74 + 1;
-			const et = 100 - kyuchaku + 0.2;
+			const st = 100 - 74;
+			const et = 100 - kyuchaku + 1.7;
 			function get_pos(time) {
 				const x = mx + (time - st) * (bx - mx) / (et - st);
 				const z = mz + (time - st) * (bz - mz) / (et - st);
 				return { x, z };
 			}
-			for (let f = 120; f < 6000; f += 50) {
+			for (let f = 150; f < 6000; f += 50) {
 				const time = f / 60;
 				if (st <= time && time <= et) {
 					const pos = get_pos(time);
@@ -209,11 +210,12 @@ function update_canvas() {
 					ctx.strokeStyle = '#fff';
 					ctx.stroke();
 					ctx.fill();
+					ctx.textBaseline = 'middle';
 					ctx.font = 'bold 16px sans-serif';
 					//ctx.strokeText((100 - time).toFixed(1) + ' (' + Math.ceil(100 - time) + ')', pos.x + 20, pos.z);
 					//ctx.fillText((100 - time).toFixed(1) + ' (' + Math.ceil(100 - time) + ')',   pos.x + 20, pos.z);
-					ctx.strokeText((100 - time).toFixed(1) , 20, -0);
-					ctx.fillText((100 - time).toFixed(1),   20, -0);
+					ctx.strokeText((100 - time).toFixed(1) , 15, -0);
+					ctx.fillText((100 - time).toFixed(1),   15, -0);
 					ctx.restore();
 				}
 			}
